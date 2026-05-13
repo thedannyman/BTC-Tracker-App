@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 export type KpiTrend = 'positive' | 'negative' | 'neutral';
 
@@ -7,6 +7,7 @@ export interface KpiCardProps {
   value: string;
   trend?: KpiTrend;
   sparklinePoints?: number[];
+  detail?: string;
 }
 
 const trendClassName: Record<KpiTrend, string> = {
@@ -15,7 +16,13 @@ const trendClassName: Record<KpiTrend, string> = {
   neutral: 'kpi-card--neutral',
 };
 
-const MiniSparkline: React.FC<{ points: number[] }> = ({ points }) => {
+const sparklineTrendLabel: Record<KpiTrend, string> = {
+  positive: 'positiver Trend',
+  negative: 'negativer Trend',
+  neutral: 'seitwärts Trend',
+};
+
+const MiniSparkline: React.FC<{ points: number[]; trend: KpiTrend; labelId: string }> = ({ points, trend, labelId }) => {
   if (points.length < 2) return null;
 
   const width = 120;
@@ -33,7 +40,8 @@ const MiniSparkline: React.FC<{ points: number[] }> = ({ points }) => {
     .join(' ');
 
   return (
-    <svg className="kpi-sparkline" viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
+    <svg className="kpi-sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={labelId}>
+      <title id={labelId}>{sparklineTrendLabel[trend]}</title>
       <path d={path} fill="none" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
@@ -44,10 +52,16 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   value,
   trend = 'neutral',
   sparklinePoints = [],
-}) => (
-  <article className={`kpi-card ${trendClassName[trend]}`}>
-    <header className="kpi-card__label">{label}</header>
-    <strong className="kpi-card__value">{value}</strong>
-    <MiniSparkline points={sparklinePoints} />
-  </article>
-);
+  detail,
+}) => {
+  const sparklineId = useId();
+
+  return (
+    <article className={`kpi-card ${trendClassName[trend]}`} aria-label={`KPI ${label}`}>
+      <header className="kpi-card__label">{label}</header>
+      <strong className="kpi-card__value">{value}</strong>
+      {detail ? <p className="kpi-card__detail">{detail}</p> : null}
+      <MiniSparkline points={sparklinePoints} trend={trend} labelId={sparklineId} />
+    </article>
+  );
+};
