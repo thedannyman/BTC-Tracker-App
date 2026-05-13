@@ -19,7 +19,7 @@ export interface NormalizedTicker {
 }
 
 export interface PriceSnapshot {
-  ticker: NormalizedTicker;
+  ticker: NormalizedTicker | null;
   state: ConnectionState;
   isLive: boolean;
   source: string;

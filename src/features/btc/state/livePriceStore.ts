@@ -17,14 +17,15 @@ const liveStateToIndicator = (state: ConnectionState): LivePriceViewModel['liveI
 };
 
 export const mapSnapshotToViewModel = (snapshot: PriceSnapshot): LivePriceViewModel => ({
-  priceText: snapshot.ticker.price.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }),
+  priceText:
+    snapshot.ticker?.price.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }) ?? '—',
   changeText:
-    snapshot.ticker.changePercent24h === null ? '—' : `${snapshot.ticker.changePercent24h.toFixed(2)}%`,
-  lastUpdated: snapshot.ticker.lastUpdated,
-  currency: snapshot.ticker.currency,
+    snapshot.ticker?.changePercent24h == null ? '—' : `${snapshot.ticker.changePercent24h.toFixed(2)}%`,
+  lastUpdated: snapshot.ticker?.lastUpdated ?? '—',
+  currency: snapshot.ticker?.currency ?? 'USD',
   liveIndicator: liveStateToIndicator(snapshot.state),
   connectionState: snapshot.state,
 });

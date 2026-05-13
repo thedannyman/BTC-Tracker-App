@@ -7,6 +7,7 @@ interface LivePriceClientOptions {
   basePollMs?: number;
   maxBackoffMs?: number;
   emitThrottleMs?: number;
+  staleAfterMs?: number;
   providers?: [PriceProvider, PriceProvider];
 }
 
@@ -17,10 +18,12 @@ export class LivePriceClient {
   private basePollMs: number;
   private maxBackoffMs: number;
   private emitThrottleMs: number;
+  private staleAfterMs: number;
   private providers: [PriceProvider, PriceProvider];
 
   private listeners = new Set<Listener>();
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private staleTimer: ReturnType<typeof setTimeout> | null = null;
   private stopStream: (() => void) | null = null;
   private currentTicker: NormalizedTicker | null = null;
   private activeProviderIndex = 0;
@@ -33,6 +36,7 @@ export class LivePriceClient {
     this.basePollMs = options.basePollMs ?? 1_000;
     this.maxBackoffMs = options.maxBackoffMs ?? 30_000;
     this.emitThrottleMs = options.emitThrottleMs ?? 250;
+    this.staleAfterMs = options.staleAfterMs ?? 5_000;
     this.providers = options.providers ?? [new CoinbaseProvider(), new CoinGeckoProvider()];
   }
 
@@ -53,6 +57,7 @@ export class LivePriceClient {
     this.stopStream?.();
     this.stopStream = null;
     if (this.timer) clearTimeout(this.timer);
+    if (this.staleTimer) clearTimeout(this.staleTimer);
     this.timer = null;
     this.transition('disconnected');
   }
@@ -108,6 +113,15 @@ export class LivePriceClient {
     }, delayMs);
   }
 
+  private armStaleTimer(): void {
+    if (this.staleTimer) clearTimeout(this.staleTimer);
+    this.staleTimer = setTimeout(() => {
+      if (this.snapshot?.state === 'live') {
+        this.transition('reconnecting', this.snapshot.source);
+      }
+    }, this.staleAfterMs);
+  }
+
   private handleTicker(
     ticker: NormalizedTicker,
     source: string,
@@ -118,6 +132,7 @@ export class LivePriceClient {
 
     this.currentTicker = ticker;
     this.transition(state, source, undefined, ticker, isLive);
+    this.armStaleTimer();
   }
 
   private transition(
@@ -131,8 +146,6 @@ export class LivePriceClient {
     if (now - this.lastEmitAt < this.emitThrottleMs && state === this.snapshot?.state && !error) {
       return;
     }
-
-    if (!ticker) return;
 
     this.snapshot = { ticker, state, isLive, source, error };
     this.lastEmitAt = now;
