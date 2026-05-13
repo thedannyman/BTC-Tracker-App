@@ -1,0 +1,74 @@
+:root {
+  /* Inform browser that both schemes are supported for native controls. */
+  color-scheme: light dark;
+
+  /* Motion */
+  --theme-transition-duration: 220ms;
+  --theme-transition-easing: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Radius + elevation */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 1px rgb(16 24 40 / 0.04);
+  --shadow-md: 0 6px 16px rgb(16 24 40 / 0.12), 0 2px 4px rgb(16 24 40 / 0.08);
+
+  /* Light theme defaults */
+  --color-bg: #f5f7fb;
+  --color-bg-elevated: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f4fa;
+  --color-border: #dbe3ef;
+
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-inverse: #f8fafc;
+
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;
+  --color-primary-contrast: #ffffff;
+  --color-focus-ring: #2563eb;
+
+  --color-success: #0f9f6e;
+  --color-warning: #b45309;
+  --color-danger: #b42318;
+}
+
+:root[data-theme='dark'] {
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45), 0 1px 1px rgb(0 0 0 / 0.25);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.5), 0 3px 8px rgb(0 0 0 / 0.35);
+
+  --color-bg: #090f1f;
+  --color-bg-elevated: #111a2e;
+  --color-surface: #141f37;
+  --color-surface-muted: #1b2a48;
+  --color-border: #2f4368;
+
+  --color-text: #eef2ff;
+  --color-text-muted: #bfd0f6;
+  --color-text-inverse: #0f172a;
+
+  --color-primary: #7aa2ff;
+  --color-primary-hover: #a5c0ff;
+  --color-primary-contrast: #08142c;
+  --color-focus-ring: #9db9ff;
+
+  --color-success: #34d399;
+  --color-warning: #f59e0b;
+  --color-danger: #f87171;
+}
+
+/* Apply only paint-related transitions to avoid layout jitter. */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition-property: color, background-color, border-color, box-shadow, outline-color,
+    text-decoration-color, fill, stroke;
+  transition-duration: var(--theme-transition-duration);
+  transition-timing-function: var(--theme-transition-easing);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
