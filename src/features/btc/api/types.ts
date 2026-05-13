@@ -24,6 +24,21 @@ export interface PriceSnapshot {
   isLive: boolean;
   source: string;
   error?: string;
+  meta?: {
+    failoverCount: number;
+    consecutiveFailures: number;
+  };
+}
+
+export class ProviderError extends Error {
+  constructor(
+    message: string,
+    public readonly status?: number,
+    public readonly retryAfterMs?: number,
+  ) {
+    super(message);
+    this.name = 'ProviderError';
+  }
 }
 
 export interface PriceProvider {

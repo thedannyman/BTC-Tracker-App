@@ -45,7 +45,7 @@ describe('providers', () => {
     expect(onData).toHaveBeenCalledTimes(1);
 
     ws.onerror?.();
-    ws.onclose?.();
+    ws.onclose?.({ code: 1006 } as any);
     expect(onErr).toHaveBeenCalled();
 
     stop();
